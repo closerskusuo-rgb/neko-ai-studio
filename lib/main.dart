@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -52,13 +54,16 @@ class _StudioHomeState extends State<StudioHome> {
   XFile? sourceImage;
   bool loading = false;
   String? errorMessage;
-  List<int>? generatedImage;
+
+  // FIX: gunakan Uint8List untuk Image.memory
+  Uint8List? generatedImage;
 
   Future<void> chooseImage() async {
     final image = await picker.pickImage(
       source: ImageSource.gallery,
     );
-    if (image != null) {
+
+    if (image != null && mounted) {
       setState(() => sourceImage = image);
     }
   }
@@ -112,7 +117,10 @@ class _StudioHomeState extends State<StudioHome> {
       });
     } catch (e) {
       setState(() {
-        errorMessage = e.toString().replaceFirst('Exception: ', '');
+        errorMessage = e.toString().replaceFirst(
+          'Exception: ',
+          '',
+        );
       });
     } finally {
       if (mounted) {
@@ -136,7 +144,10 @@ class _StudioHomeState extends State<StudioHome> {
       appBar: AppBar(
         title: const Row(
           children: [
-            Icon(Icons.auto_awesome, color: Color(0xFFD49BFF)),
+            Icon(
+              Icons.auto_awesome,
+              color: Color(0xFFD49BFF),
+            ),
             SizedBox(width: 9),
             Text(
               'NEKO AI STUDIO',
@@ -149,7 +160,9 @@ class _StudioHomeState extends State<StudioHome> {
         ),
         actions: [
           IconButton(
-            onPressed: () => showMessage('Riwayat segera hadir!'),
+            onPressed: () => showMessage(
+              'Riwayat segera hadir!',
+            ),
             icon: const Icon(Icons.history),
           ),
         ],
@@ -243,7 +256,8 @@ class _StudioHomeState extends State<StudioHome> {
               minLines: 4,
               maxLines: 7,
               decoration: InputDecoration(
-                hintText: 'Describe your dream anime character...',
+                hintText:
+                    'Describe your dream anime character...',
                 filled: true,
                 fillColor: const Color(0xFF20192A),
                 border: OutlineInputBorder(
@@ -263,7 +277,8 @@ class _StudioHomeState extends State<StudioHome> {
               minLines: 1,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'blurry, low quality, extra fingers...',
+                hintText:
+                    'blurry, low quality, extra fingers...',
                 filled: true,
                 fillColor: const Color(0xFF20192A),
                 border: OutlineInputBorder(
@@ -327,7 +342,8 @@ class _StudioHomeState extends State<StudioHome> {
             SizedBox(
               height: 56,
               child: FilledButton.icon(
-                onPressed: loading || editing ? null : generateImage,
+                onPressed:
+                    loading || editing ? null : generateImage,
                 icon: loading
                     ? const SizedBox(
                         height: 20,
@@ -338,7 +354,9 @@ class _StudioHomeState extends State<StudioHome> {
                       )
                     : const Icon(Icons.auto_awesome),
                 label: Text(
-                  loading ? 'GENERATING...' : 'GENERATE IMAGE',
+                  loading
+                      ? 'GENERATING...'
+                      : 'GENERATE IMAGE',
                 ),
                 style: FilledButton.styleFrom(
                   backgroundColor: const Color(0xFF9855D5),
@@ -352,7 +370,9 @@ class _StudioHomeState extends State<StudioHome> {
               const SizedBox(height: 18),
               Text(
                 errorMessage!,
-                style: const TextStyle(color: Colors.redAccent),
+                style: const TextStyle(
+                  color: Colors.redAccent,
+                ),
               ),
             ],
             if (generatedImage != null) ...[
